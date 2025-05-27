@@ -1,35 +1,38 @@
 import pygame
 from typing import Protocol, Callable, runtime_checkable
 
-class Drawable(Protocol):
-    def draw(self, screen) -> None: ...
-
-@runtime_checkable
-class Clickable(Protocol):
-    def click(self, screen) -> Callable[[], None]: ...
-    def collidepoint(self, point) -> bool: ...
+def passFunc(obj, screen):
+    pass
 
 class Button:
-    def __init__(self, x: int, y: int, width: int, height: int, color):
+    def __init__(self, x: int, y: int, width: int, height: int, color, func=passFunc):
         self.button_surface = pygame.Surface((width, height), pygame.SRCALPHA)
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.color = color
-        self.button_surface.fill(color)
+        self.func = func
     def draw(self, screen):
+        self.button_surface.fill(self.color)
         screen.blit(self.button_surface, (self.x, self.y))
         #pygame.draw.rect(surface=screen, color=self.color, rect=self.button_rect)
-    def click(self, screen) -> Callable[[], None]:
-        def func():
-            pass
-        return func
+    def click(self, screen) -> None:
+        self.func(self,screen)
     def collidepoint(self, point) -> bool:
         (x, y) = point
         # print(point)
         # print((self.x, self.y))ы
         return (y >= self.y and y <= self.y + self.height) and (x >= self.x and x <= self.x + self.width)
+
+
+class Drawable(Protocol):
+    def draw(self, screen) -> None: ...
+
+@runtime_checkable
+class Clickable(Protocol):
+    def click(self, screen: pygame.Surface) -> None: ...
+    def collidepoint(self, point) -> bool: ...
 
 class Game:
     def __init__(self, gameName: str):
@@ -81,7 +84,11 @@ class Game:
         
 if __name__ == "__main__":
     game = Game("Простая игра")
-    button = Button(100,100, 100, 100, (255, 0, 0))
+    def func(obj:Button, screen:pygame.surface):
+        obj.color = (255,255,0)
+        obj.x = obj.x+10
+        print("Функция вызвалась")
+    button = Button(100,100, 100, 100, (255, 0, 0), func)
     game.add_obj(button)
     button = Button(100,200, 100, 100, (0, 0, 0))
     game.add_obj(button)
