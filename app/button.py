@@ -4,8 +4,10 @@ import pygame
 def passFunc(obj, screen):
     pass
 
+
 class Button:
-    def __init__(self, x: int, y: int, width: int, height: int, color, func=passFunc):
+    def __init__(self, x: int, y: int, width: int, height: int, color, func=passFunc, text=""):
+        
         self.button_surface = pygame.Surface((width, height), pygame.SRCALPHA)
         self.x = x
         self.y = y
@@ -13,9 +15,9 @@ class Button:
         self.height = height
         self.color = color
         self.func = func
-        ##########
+
         self.font = pygame.font.SysFont("arial", 24)
-        self.text_surface = self.font.render("Нажми", True, (255, 255, 255))  # Белый текст
+        self.text_surface = self.font.render(text, True, (255, 255, 255))  # Белый текст
         self.text_rect = self.text_surface.get_rect(center=(self.x+self.width//2, self.y+self.height//2))  # Центр кнопки
         self.button_surface.blit(self.text_surface, self.text_rect)
 

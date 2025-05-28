@@ -1,23 +1,29 @@
 import pygame
 from typing import Protocol, Callable, runtime_checkable
 
+@runtime_checkable
 class Drawable(Protocol):
     def draw(self, screen) -> None: ...
 
 @runtime_checkable
 class Clickable(Protocol):
-    def click(self, screen: pygame.Surface) -> None: ...
     def collidepoint(self, point) -> bool: ...
+    def click(self, screen: pygame.Surface) -> None: ...
+
+#singleton
 
 class Game:
     def __init__(self, gameName: str):
         pygame.init()
-        self.__screen = pygame.display.set_mode((640, 480))
+        self.__screen = pygame.display.set_mode((640, 480)) #разрешение
+
         pygame.display.set_caption(gameName)
         self.__running = False
         self.__clock = pygame.time.Clock()
         self.__objects: list[Drawable] = []
         self.__clickable_objects: list[Clickable] = [] 
+
+        
     def Run(self):
         self.__running = True
         #button_rect = pygame.Rect(100, 100, 200, 50)
@@ -30,6 +36,9 @@ class Game:
                         self.__running = False
                     elif event.key == pygame.K_SPACE:
                         print("Пробел нажат!")
+
+                
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for clicked in self.__clickable_objects:
                         # sup = pygame.Rect(0, 0, 0, 0) 
@@ -41,6 +50,8 @@ class Game:
                     #     print("Кнопка нажата!")
 
             self.__screen.fill((176, 224, 230))  # фон
+            
+
             self.render_all(self.__screen)
             # pygame.draw.circle(self.__screen, (255, 0, 0), (320, 240), 50)  # Красный круг
             # pygame.draw.rect(self.__screen, (0, 255, 0), button_rect)
@@ -52,7 +63,11 @@ class Game:
     def render_all(self, screen):
         for obj in self.__objects:
             obj.draw(screen)
+
     def add_obj(self, obj: Drawable):
-        self.__objects.append(obj)
+        # print(type(obj))
+        # self.__objects.append(obj)
+        if isinstance(obj, Drawable):
+            self.__objects.append(obj)   
         if isinstance(obj, Clickable):
-            self.__clickable_objects.append(obj)
+            self.__clickable_objects.append(obj)   
