@@ -1,11 +1,12 @@
 import pygame
 from typing import Protocol, Callable, runtime_checkable
+import random
 
 def passFunc(obj, screen):
     pass
 
 class Button:
-    def __init__(self, x: int, y: int, width: int, height: int, color, func=passFunc):
+    def __init__(self, x: int, y: int, width: int, height: int, color, func=passFunc, text=""):
         self.button_surface = pygame.Surface((width, height), pygame.SRCALPHA)
         self.x = x
         self.y = y
@@ -15,7 +16,7 @@ class Button:
         self.func = func
         ##########
         self.font = pygame.font.SysFont("arial", 24)
-        self.text_surface = self.font.render("Нажми", True, (255, 255, 255))  # Белый текст
+        self.text_surface = self.font.render(text, True, (255, 255, 255))  # Белый текст
         self.text_rect = self.text_surface.get_rect(center=(self.x+self.width//2, self.y+self.height//2))  # Центр кнопки
         self.button_surface.blit(self.text_surface, self.text_rect)
 
@@ -34,7 +35,7 @@ class Button:
         # print((self.x, self.y))ы
         return (y >= self.y and y <= self.y + self.height) and (x >= self.x and x <= self.x + self.width)
 
-
+@runtime_checkable
 class Drawable(Protocol):
     def draw(self, screen) -> None: ...
 
@@ -43,6 +44,27 @@ class Clickable(Protocol):
     def click(self, screen: pygame.Surface) -> None: ...
     def collidepoint(self, point) -> bool: ...
 
+class Scene:
+    def __init__(self):
+        self.__objects: list[Drawable] = []
+        self.IsObjectVisible: list[bool] = []
+        self.__clickable_objects: list[Clickable] = [] 
+    def _getClickableObjects(self) -> list[Clickable]:
+        return self.__clickable_objects
+    def render(self, screen):
+        for i in range(len(self.__objects)):
+            if self.IsObjectVisible[i]:
+                self.__objects[i].draw(screen)
+    def add_obj(self, obj: Drawable):
+        addedObjId = -1
+        if isinstance(obj, Drawable):
+            addedObjId = len(self.__objects)
+            self.__objects.append(obj)
+            self.IsObjectVisible.append(True)
+        if isinstance(obj, Clickable):
+            self.__clickable_objects.append(obj)
+        return addedObjId
+        
 class Game:
     def __init__(self, gameName: str):
         pygame.init()
@@ -50,8 +72,8 @@ class Game:
         pygame.display.set_caption(gameName)
         self.__running = False
         self.__clock = pygame.time.Clock()
-        self.__objects: list[Drawable] = []
-        self.__clickable_objects: list[Clickable] = [] 
+        self.__scenes: list[Scene] = [Scene()]
+        self.ActiveSceneID = 0 
     def Run(self):
         self.__running = True
         #button_rect = pygame.Rect(100, 100, 200, 50)
@@ -65,7 +87,7 @@ class Game:
                     elif event.key == pygame.K_SPACE:
                         print("Пробел нажат!")
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    for clicked in self.__clickable_objects:
+                    for clicked in self.__scenes[self.ActiveSceneID]._getClickableObjects():
                         # sup = pygame.Rect(0, 0, 0, 0) 
                         # sup.collidepoint
                         if clicked.collidepoint(event.pos):
@@ -84,22 +106,41 @@ class Game:
 
         pygame.quit()
     def render_all(self, screen):
-        for obj in self.__objects:
-            obj.draw(screen)
+        self.__scenes[self.ActiveSceneID].render(screen)
+        # for obj in self.__objects:
+        #     obj.draw(screen)
     def add_obj(self, obj: Drawable):
-        self.__objects.append(obj)
-        if isinstance(obj, Clickable):
-            self.__clickable_objects.append(obj)
+        Id = self.__scenes[self.ActiveSceneID].add_obj(obj)
+        return Id, self.ActiveSceneID
+    def SetActiveScene(self, Id) -> int:
+        if Id > len(self.__scenes):
+            self.ActiveSceneID = len(self.__scenes)
+            self.__scenes.append(Scene())
+            return self.ActiveSceneID
+        self.ActiveSceneID = Id
+        return Id
+    def AddScene(self, scene: Scene):
+        self.__scenes.append(scene)
         
 if __name__ == "__main__":
     game = Game("Простая игра")
     def func(obj:Button, screen:pygame.surface):
-        obj.color = (255,255,0)
-        obj.x = obj.x+10
+        obj.color = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+        obj.x = random.randint(0, 640)
+        obj.y = random.randint(0, 480)
         print("Функция вызвалась")
-    button = Button(100,100, 100, 100, (255, 0, 0), func)
+    button = Button(100,100, 100, 100, (255, 0, 0), func, "Нажми")
     game.add_obj(button)
-    button = Button(100,200, 100, 100, (0, 0, 0))
+    def func2(obj:Button, screen:pygame.surface):
+        if game.ActiveSceneID == 0:
+            game.SetActiveScene(1)
+        else:
+            game.SetActiveScene(0)
+        print("Функция вызвалась")
+    button = Button(100,200, 100, 100, (0, 0, 0), func2)
     game.add_obj(button)
+    scene = Scene()
+    scene.add_obj(button)
+    game.AddScene(scene)
     game.Run()
     
