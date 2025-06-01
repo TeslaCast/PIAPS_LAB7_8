@@ -1,0 +1,10 @@
+define characters = [Alex, Sanya]
+
+start:
+Alex Привет как дела
+Sanya Даров у меня всё хорошо
+I Как же он меня достал... 
+Case {
+    Text1: ./filename 
+    Text2: ./filename
+}
