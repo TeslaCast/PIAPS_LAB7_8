@@ -1,10 +1,14 @@
-from interfaces import Drawable, Clickable
-
+from interface import Drawable, Clickable
+from mainbox import MainBox
+from Character import Character
+from typing import Optional
 class Scene:
     def __init__(self):
         self.__objects: list[Drawable] = []
         self.IsObjectVisible: list[bool] = []
         self.__clickable_objects: list[Clickable] = [] 
+        self.characters: list[Character] = []
+        self.current_dialogue: Optional[MainBox] = None
     def _getClickableObjects(self) -> list[Clickable]:
         return self.__clickable_objects
     def render(self, screen):

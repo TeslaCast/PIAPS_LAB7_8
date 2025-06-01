@@ -1,11 +1,11 @@
 import pygame
 from scene import Scene
-from interfaces import Drawable
+from interface import Drawable
 
 class Game:
     def __init__(self, gameName: str):
         pygame.init()
-        self.__screen = pygame.display.set_mode((640, 480))
+        self.__screen = pygame.display.set_mode((1280, 720))
         pygame.display.set_caption(gameName)
         self.__running = False
         self.__clock = pygame.time.Clock()
