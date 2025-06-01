@@ -5,11 +5,18 @@ from scene import Scene
 import random
 from mainbox import MainBox
 from textparser import TextParser
+from main_menu import MainMenu
 
 if __name__ == "__main__":
-    game = Game("Простая игра")
+    game = Game("Главное меню")
     
-    # Create a scene and main box
+    menu = MainMenu(game)
+    game.add_obj(menu)
+    
+    ##game.Run()
+    # game = Game("Простая игра")
+    
+    # # Create a scene and main box
     scene = Scene()
     width, height = 1280, 720
     box = MainBox(40, height - 240, width - 80, 200, "Начало", "")
@@ -17,13 +24,13 @@ if __name__ == "__main__":
     
     # Add scene to game
     game.AddScene(scene)
-    game.SetActiveScene(1)  # Set to the new scene (ID 1)
+    ##game.SetActiveScene(1)  # Set to the new scene (ID 1)
     
     # Initialize and use TextParser
     parser = TextParser(game, scene, box)
-    parser.patch_game_class()  # Patch Game class for background support
+    #parser.patch_game_class()  # Patch Game class for background support
     parser.load_from_file("Ch1P1.txt")  # Load initial dialogue file
     
-    # Run the game
+    # # Run the game
     game.Run()
 

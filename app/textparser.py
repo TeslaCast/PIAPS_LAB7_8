@@ -50,12 +50,8 @@ class SetBackgroundCommand(Command):
         self.image_path = image_path
 
     def execute(self, game: Game, scene: Scene, main_box: MainBox) -> None:
-        try:
-            game.background = pygame.image.load(self.image_path).convert()
-            game.background = pygame.transform.scale(game.background, (1280, 720))
-        except Exception as e:
-            print(f"Ошибка загрузки фона: {e}")
-            game.background = None
+        # Set the background on the current scene
+        scene.set_background(self.image_path)
 
 # Command to handle dialogue
 class DialogueCommand(Command):
@@ -211,15 +207,3 @@ class TextParser:
             self._add_choice_buttons()
         else:
             self.main_box.update_text("Конец сценария")
-
-    # Modify Game class to handle background rendering
-    def patch_game_class(self):
-        """Patches the Game class to support background rendering."""
-        original_render_all = self.game.render_all
-
-        def new_render_all(self_game, screen):
-            if hasattr(self_game, 'background') and self_game.background:
-                screen.blit(self_game.background, (0, 0))
-            original_render_all(screen)
-
-        self.game.render_all = new_render_all.__get__(self.game, Game)
