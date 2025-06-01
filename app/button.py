@@ -1,10 +1,12 @@
 import pygame
 
+
 def passFunc(obj, screen):
     pass
 
+
 class Button:
-    def __init__(self, x: int, y: int, width: int, height: int, color, func=passFunc, text=""):
+    def __init__(self, x: int, y: int, width: int, height: int, color, func=passFunc, text=""): 
         self.button_surface = pygame.Surface((width, height), pygame.SRCALPHA)
         self.x = x
         self.y = y
@@ -31,4 +33,6 @@ class Button:
 
     def collidepoint(self, point) -> bool:
         (x, y) = point
+
+
         return (y >= self.y and y <= self.y + self.height) and (x >= self.x and x <= self.x + self.width)
