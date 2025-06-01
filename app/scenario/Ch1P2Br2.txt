@@ -1,5 +1,6 @@
 name( ):Витя перестал раскачиваться и спрыгнул с качелей.
 ---
+background(backgrounds/background7.png)
 set(Витя, [path]/emoteVitya1.png)
 name(Витя):Зануда. Хотя...
 ---
