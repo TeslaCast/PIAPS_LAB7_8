@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # Initialize and use TextParser
     parser = TextParser(game, scene, box)
     parser.patch_game_class()  # Patch Game class for background support
-    parser.load_from_file("app/h1.txt")  # Load initial dialogue file
+    parser.load_from_file("Ch1P1.txt")  # Load initial dialogue file
     
     # Run the game
     game.Run()

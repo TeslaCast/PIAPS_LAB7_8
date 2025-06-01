@@ -76,10 +76,11 @@ class ChoiceCommand(Command):
     def execute(self, game: Game, scene: Scene, main_box: MainBox) -> None:
         # This will be called when the choice button is clicked
         parser = TextParser(game, scene, main_box)
-        if os.path.exists(self.goto_file):
-            parser.load_from_file(self.goto_file)
+        fullpath = parser.base_path+self.goto_file
+        if os.path.exists(fullpath):
+            parser.load_from_file(fullpath)
         else:
-            print(f"Ошибка: Файл {self.goto_file} не найден")
+            print(f"Ошибка: Файл {fullpath} не найден")
             main_box.update_text("Ошибка: Сценарий не найден")
 
 class TextParser:
@@ -90,12 +91,12 @@ class TextParser:
         self.blocks: List[List[Command]] = []  # Store commands in blocks
         self.choices: List[Dict[str, str]] = []  # Store choices for buttons
         self.current_block_index = 0  # Track current block
-        self.base_path = "app/"  # Base path for assets
+        self.base_path = "app/scenario/"  # Base path for assets
 
     def load_from_file(self, file_path: str):
         """Loads and parses a text file, preparing blocks for iteration."""
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(self.base_path + file_path, 'r', encoding='utf-8') as file:
                 text_content = file.read()
             self.parse_text(text_content)
             self.current_block_index = 0
