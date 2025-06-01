@@ -15,6 +15,7 @@ class Button:
         self.height = height
         self.color = color
         self.func = func
+        self.text = text
 
         self.font = pygame.font.SysFont("arial", 24)
         self.text_surface = self.font.render(text, True, (255, 255, 255))  # Белый текст
@@ -32,6 +33,6 @@ class Button:
         self.func(self,screen)
     def collidepoint(self, point) -> bool:
         (x, y) = point
-        # print(point)
+        print(point)
         # print((self.x, self.y))ы
         return (y >= self.y and y <= self.y + self.height) and (x >= self.x and x <= self.x + self.width)

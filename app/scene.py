@@ -1,0 +1,28 @@
+from typing import List
+from interface import Drawable, Clickable
+
+
+
+class Scene:
+    def __init__(self):
+        self.__objects: List[Drawable] = []
+        self.IsObjectVisible: List[bool] = []
+        self.__clickable_objects: List[Clickable] = []
+
+    def _getClickableObjects(self) -> List[Clickable]:
+        return self.__clickable_objects
+
+    def render(self, screen):
+        for i in range(len(self.__objects)):
+            if self.IsObjectVisible[i]:
+                self.__objects[i].draw(screen)
+
+    def add_obj(self, obj: Drawable):
+        addedObjId = -1
+        if isinstance(obj, Drawable):
+            addedObjId = len(self.__objects)
+            self.__objects.append(obj)
+            self.IsObjectVisible.append(True)
+        if isinstance(obj, Clickable):
+            self.__clickable_objects.append(obj)
+        return addedObjId
