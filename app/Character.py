@@ -1,5 +1,5 @@
 import pygame
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List, Protocol, Callable
 from abc import ABC, abstractmethod
 
 class CharacterDisplayStrategy(ABC):
@@ -23,6 +23,34 @@ class HiddenDisplayStrategy(CharacterDisplayStrategy):
     def display(self, character, screen):
         pass
 
+# Паттерн Состояние для персонажа
+class CharacterState(ABC):
+    @abstractmethod
+    def handle(self, character):
+        pass
+
+class ActiveState(CharacterState):
+    def handle(self, character):
+        character.is_active = True
+        character.is_visible = True
+        character.set_display(DefaultDisplayStrategy())
+
+class InactiveState(CharacterState):
+    def handle(self, character):
+        character.is_active = False
+        character.is_visible = True
+        character.set_display(DarkenedDisplayStrategy())
+
+class HiddenState(CharacterState):
+    def handle(self, character):
+        character.is_active = False
+        character.is_visible = False
+        character.set_display(HiddenDisplayStrategy())
+
+# Паттерн Наблюдатель для персонажа
+class CharacterObserver(Protocol):
+    def on_state_change(self, character): ...
+
 class Character:
     def __init__(self, x: int, y: int, name: str = "", name_color: Tuple[int, int, int] = (200, 200, 0)):
         self.x = x
@@ -33,8 +61,25 @@ class Character:
         self.current_emotion = None
         self._display_strategy: CharacterDisplayStrategy = DefaultDisplayStrategy()
         self.rect = None
+        self.state: CharacterState = ActiveState()
         self.is_active = False
         self.is_visible = True
+        self._observers: List[CharacterObserver] = []
+
+    def add_observer(self, observer: CharacterObserver):
+        self._observers.append(observer)
+
+    def remove_observer(self, observer: CharacterObserver):
+        self._observers.remove(observer)
+
+    def notify_observers(self):
+        for observer in self._observers:
+            observer.on_state_change(self)
+
+    def set_state(self, state: CharacterState):
+        self.state = state
+        self.state.handle(self)
+        self.notify_observers()
 
     def add_emotion(self, emotion_name: str, image_path: str):
         try:
@@ -54,7 +99,7 @@ class Character:
         if emotion_name in self.emotions:
             self.current_emotion = self.emotions[emotion_name]
             self.rect = self.current_emotion.get_rect(topleft=(self.x, self.y))
-            self.update_display()  # Fixed: Changed from update_display_strategy to update_display
+            self.update_display()
 
     def set_display(self, strategy: CharacterDisplayStrategy):
         self._display_strategy = strategy

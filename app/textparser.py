@@ -14,9 +14,11 @@ class Command:
 
 # Command to set a character with an emotion
 class SetCharacterCommand(Command):
-    def __init__(self, character_name: str, image_path: str):
+    def __init__(self, character_name: str, image_path: str, x: int = 100, y: int = 100):
         self.character_name = character_name
         self.image_path = image_path
+        self.x = x
+        self.y = y
 
     def execute(self, game: Game, scene: Scene, main_box: MainBox) -> None:
         # Check if character already exists in scene
@@ -24,10 +26,11 @@ class SetCharacterCommand(Command):
             if character.name == self.character_name:
                 character.add_emotion("default", self.image_path)
                 character.set_emotion("default")
+                character.set_position(self.x, self.y)
                 character.toggle_visibility()  # Ensure character is visible
                 return
         # Create new character if not found
-        character = Character(x=100, y=100, name=self.character_name)
+        character = Character(x=self.x, y=self.y, name=self.character_name)
         character.add_emotion("default", self.image_path)
         character.set_emotion("default")
         scene.characters.append(character)
@@ -156,7 +159,13 @@ class TextParser:
                     parts = line[4:-1].split(",")
                     character_name = parts[0].strip()
                     image_path = self.base_path + parts[1].strip()
-                    commands.append(SetCharacterCommand(character_name, image_path))
+                    if len(parts) >= 4:
+                        x = int(parts[2].strip())
+                        y = int(parts[3].strip())
+                    else:
+                        x = 100
+                        y = 100
+                    commands.append(SetCharacterCommand(character_name, image_path, x, y))
                 except IndexError:
                     print(f"Ошибка формата set: {line}")
             elif line.startswith("hide("):
